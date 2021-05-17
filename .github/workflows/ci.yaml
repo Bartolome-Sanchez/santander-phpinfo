@@ -1,0 +1,19 @@
+name: ci
+on:
+  push:
+   branches:
+     - docker
+jobs:
+  dockerfile:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: debug
+        run: set -x
+      - name: build
+        run: docker build --file Dockerfile --no-cache --tag index.docker.io/barsanse/santander-phpinfo:ci .
+      - name: run
+        run: docker run --detach --name santander-phpinfo index.docker.io/barsanse/santander-phpinfo:ci
+      - name: test
+        run: while true ; do sleep 10 ; docker logs santander-phpinfo 2>& 1 | grep started && break ; done
